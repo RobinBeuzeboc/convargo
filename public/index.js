@@ -153,23 +153,71 @@ const actors = [{
 //STEP 1
 
 function shippingPrice(){
+  var final = [];
   var shipPrice;
 
   for(var i in deliveries)
   {
     var shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId);
-
     deliveries[i].price = shipPrice;
+
+    var repartition = [];
+    repartition = retrieveComission(shipPrice, deliveries[i]);
+
+
+
+    final.push({
+      id: deliveries[i].id,
+      distance: deliveries[i].distance,
+      volume: deliveries[i].volume,
+      truckerId: deliveries[i].truckerId,
+      price: shipPrice,
+      commission: repartition
+    });
 
 
   }
-    console.log(deliveries);
+    console.log(final);
+    return final;
+}
+
+function retrieveComission(shipPrice, deli){
+
+  var commission = 0.3*shipPrice;
+  var insurance = 0 ;
+  var treasury = 1 ;
+  var convargo = 0 ;
+  var dist = deli.distance;
+  insurance = commission / 2;
+  commission *= 0.5;
+
+  if(dist => 500){
+    while(dist > 500){
+      dist = dist - 500
+      treasury += 1 ;
+
+    }
+  }
+  commission -= treasury;
+
+  convargo = commission;
+  var repartition = [];
+  repartition.push({
+    total: shipPrice*0.3,
+    insurance: insurance,
+    treasury: treasury,
+    convargo: convargo
+  });
+
+  return repartition;
 }
 
 function totPrice(distance, volume, truckerId){
 
   var priceKM;
   var priceVOL;
+  var commission;
+
   for(var i in truckers){
     if(truckerId == truckers[i].id){
       priceKM = truckers[i].pricePerKm;
@@ -177,25 +225,23 @@ function totPrice(distance, volume, truckerId){
       break;
     }
   }
-  if(volume > 5){
 
-    if(volume > 10){
-
-      if(volume > 25){
-        priceVOL = 0.5 * priceVOL;
-      }
-      priceVOL = 0.7 * priceVOL;
-    }
+  if(volume > 5 && volume <= 10 ){
     priceVOL = 0.9 * priceVOL;
+  }
+  else if(volume > 10 && volume <= 25){
+    priceVOL = 0.7 * priceVOL;
 
+  } else if(volume > 25  ){
+    priceVOL = 0.5 * priceVOL;
   }
 
   var dist = distance * priceKM;
   var vol = volume * priceVOL;
 
   var finalPrice = dist + vol;
+
   return finalPrice;
 }
-
 
 shippingPrice();
