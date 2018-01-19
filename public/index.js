@@ -158,15 +158,26 @@ function shippingPrice(){
 
   for(var i in deliveries)
   {
-    var shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId);
+    var shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId); //computing price (distance * volume)
+
+
+    //decresing pricing for high volume
+    if(deliveries[i].volume > 5 && deliveries[i].volume <= 10 ){
+      shipPrice = 0.9 * shipPrice;
+    }
+    else if(deliveries[i].volume > 10 && deliveries[i].volume <= 25){
+      shipPrice = 0.7 * shipPrice;
+
+    } else if(deliveries[i].volume > 25  ){
+      shipPrice = 0.5 * shipPrice;
+    }
+
     deliveries[i].price = shipPrice;
 
     var repartition = [];
-    repartition = retrieveComission(shipPrice, deliveries[i]);
+    repartition = retrieveComission(shipPrice, deliveries[i]); //30% of the price goes to the commission
 
-
-
-    final.push({
+    final.push({ //display final result
       id: deliveries[i].id,
       distance: deliveries[i].distance,
       volume: deliveries[i].volume,
@@ -224,16 +235,6 @@ function totPrice(distance, volume, truckerId){
       priceVOL = truckers[i].pricePerVolume;
       break;
     }
-  }
-
-  if(volume > 5 && volume <= 10 ){
-    priceVOL = 0.9 * priceVOL;
-  }
-  else if(volume > 10 && volume <= 25){
-    priceVOL = 0.7 * priceVOL;
-
-  } else if(volume > 25  ){
-    priceVOL = 0.5 * priceVOL;
   }
 
   var dist = distance * priceKM;
