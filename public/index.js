@@ -153,15 +153,19 @@ const actors = [{
 //STEP 1
 
 function shippingPrice(){
-  var final = [];
-  var shipPrice;
+  var final = []; //contain final infos
+  var shipPrice; //Price of shipment
+
+  var repartition = [] ; // contains the infos of the comission
+
+
 
   for(var i in deliveries)
   {
-    var shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId); //computing price (distance * volume)
+    shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId); //computing price (distance * volume)
 
 
-    //decresing pricing for high volume
+    //decreasing pricing for high volume
     if(deliveries[i].volume > 5 && deliveries[i].volume <= 10 ){
       shipPrice = 0.9 * shipPrice;
     }
@@ -172,9 +176,8 @@ function shippingPrice(){
       shipPrice = 0.5 * shipPrice;
     }
 
-    deliveries[i].price = shipPrice;
 
-    var repartition = [];
+    deliveries[i].price = shipPrice;
     repartition = retrieveComission(shipPrice, deliveries[i]); //30% of the price goes to the commission
 
     final.push({ //display final result
@@ -192,13 +195,16 @@ function shippingPrice(){
     return final;
 }
 
-function retrieveComission(shipPrice, deli){
+function retrieveComission(shipPrice, deli){ //applies the 30% retrieval commission from the total price
 
   var commission = 0.3*shipPrice;
   var insurance = 0 ;
   var treasury = 1 ;
   var convargo = 0 ;
   var dist = deli.distance;
+  var deductibleValue=0;
+
+
   insurance = commission / 2;
   commission *= 0.5;
 
@@ -211,19 +217,33 @@ function retrieveComission(shipPrice, deli){
   }
   commission -= treasury;
 
-  convargo = commission;
+  convargo = commission  ; //if false, equals 0
+  if(deli.options.deductibleReduction == true)
+  {
+    deductibleValue = deli.volume;
+    convargo += deductibleValue;
+  }
+
   var repartition = [];
+  var options = [];
+  var ded = deli.options.deductibleReduction;
+options.push({
+  deductibleOption: ded,
+  deductibleValue: deductibleValue
+});
+
   repartition.push({
     total: shipPrice*0.3,
     insurance: insurance,
     treasury: treasury,
-    convargo: convargo
+    convargo: convargo,
+    options: options
   });
 
   return repartition;
 }
 
-function totPrice(distance, volume, truckerId){
+function totPrice(distance, volume, truckerId){ //price by distance, volume, and ID of the trucker
 
   var priceKM;
   var priceVOL;
@@ -236,6 +256,8 @@ function totPrice(distance, volume, truckerId){
       break;
     }
   }
+
+
 
   var dist = distance * priceKM;
   var vol = volume * priceVOL;
