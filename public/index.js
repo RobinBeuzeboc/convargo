@@ -145,6 +145,43 @@ const actors = [{
   }]
 }];
 
-console.log(truckers);
-console.log(deliveries);
-console.log(actors);
+//console.log(truckers);
+//console.log(deliveries);
+//console.log(actors);
+
+
+//STEP 1
+
+function shippingPrice(){
+  var shipPrice;
+  for(var i in deliveries)
+  {
+    var shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId);
+
+    deliveries[i].price = shipPrice;
+
+
+  }
+    console.log(deliveries);
+}
+
+function totPrice(distance, volume, truckerId){
+
+  var priceKM;
+  var priceVOL;
+  for(var i in truckers){
+    if(truckerId == truckers[i].id){
+      priceKM = truckers[i].pricePerKm;
+      priceVOL = truckers[i].pricePerVolume;
+      break;
+    }
+  }
+  var dist = distance * priceKM;
+  var vol = volume * priceVOL;
+
+  var finalPrice = dist + vol;
+  return finalPrice;
+}
+
+
+shippingPrice();
