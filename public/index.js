@@ -154,6 +154,7 @@ const actors = [{
 
 function shippingPrice(){
   var shipPrice;
+
   for(var i in deliveries)
   {
     var shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId);
@@ -176,6 +177,19 @@ function totPrice(distance, volume, truckerId){
       break;
     }
   }
+  if(volume > 5){
+
+    if(volume > 10){
+
+      if(volume > 25){
+        priceVOL = 0.5 * priceVOL;
+      }
+      priceVOL = 0.7 * priceVOL;
+    }
+    priceVOL = 0.9 * priceVOL;
+
+  }
+
   var dist = distance * priceKM;
   var vol = volume * priceVOL;
 
