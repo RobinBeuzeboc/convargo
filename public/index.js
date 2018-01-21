@@ -231,7 +231,7 @@ function retrieveComission(shipPrice, deli){ //applies the 30% retrieval commiss
   var options = [];
   var ded = deli.options.deductibleReduction;
 
-//Step 5
+//Step 5: repartion between all actors
   var actor = {};
 
   actor = findDeliveryById(deli.id); //find the delivery
@@ -257,7 +257,7 @@ else  if(arr[1][j].who == "treasury"){
   }
 
 }
-console.log(actor);
+console.log(actor); //displays the actual actor
 
 
 
@@ -273,10 +273,6 @@ options.push({
     convargo: convargo,
     options: options
   });
-
-
-
-
 
   return repartition;
 }
@@ -294,7 +290,6 @@ function totPrice(distance, volume, truckerId){ //price by distance, volume, and
       break;
     }
   }
-
 
 
   var dist = distance * priceKM;
