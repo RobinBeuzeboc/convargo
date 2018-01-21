@@ -155,16 +155,10 @@ const actors = [{
 function shippingPrice(){
   var final = []; //contain final infos
   var shipPrice; //Price of shipment
-
   var repartition = [] ; // contains the infos of the comission
-
-
-
   for(var i in deliveries)
   {
     shipPrice = totPrice(deliveries[i].distance, deliveries[i].volume, deliveries[i].truckerId); //computing price (distance * volume)
-
-
     //decreasing pricing for high volume
     if(deliveries[i].volume > 5 && deliveries[i].volume <= 10 ){
       shipPrice = 0.9 * shipPrice;
@@ -180,7 +174,7 @@ function shippingPrice(){
     deliveries[i].price = shipPrice;
     repartition = retrieveComission(shipPrice, deliveries[i]); //30% of the price goes to the commission
 
-    final.push({ //display final result
+    final.push({ //display final result and details of deliveries
       id: deliveries[i].id,
       distance: deliveries[i].distance,
       volume: deliveries[i].volume,
@@ -192,8 +186,18 @@ function shippingPrice(){
 
   }
     console.log(final);
-    return final;
 }
+function findDeliveryById(id){
+  for(var i in actors){
+    if(id == actors[i].deliveryId){
+
+      return actors[i];
+
+    }
+  }
+
+}
+
 
 function retrieveComission(shipPrice, deli){ //applies the 30% retrieval commission from the total price
 
@@ -212,12 +216,11 @@ function retrieveComission(shipPrice, deli){ //applies the 30% retrieval commiss
     while(dist > 500){
       dist = dist - 500
       treasury += 1 ;
-
     }
   }
   commission -= treasury;
-
   convargo = commission  ; //if false, equals 0
+
   if(deli.options.deductibleReduction == true)
   {
     deductibleValue = deli.volume;
@@ -227,6 +230,37 @@ function retrieveComission(shipPrice, deli){ //applies the 30% retrieval commiss
   var repartition = [];
   var options = [];
   var ded = deli.options.deductibleReduction;
+
+//Step 5
+  var actor = {};
+
+  actor = findDeliveryById(deli.id); //find the delivery
+  var arr = Object.values(actor);
+
+  for(var j = 0; j < arr[1].length; j++){
+
+  if(arr[1][j].who =="shipper"){
+    arr[1][j].amount = shipPrice - deductibleValue;
+  }
+
+else  if(arr[1][j].who == "trucker"){
+    arr[1][j].amount = shipPrice - shipPrice*0.3;
+  }
+else  if(arr[1][j].who == "insurance"){
+    arr[1][j].amount = insurance;
+  }
+else  if(arr[1][j].who == "treasury"){
+    arr[1][j].amount = treasury ;
+  }
+  else if(arr[1][j].who == "convargo"){
+    arr[1][j].amount = commission ;
+  }
+
+}
+console.log(actor);
+
+
+
 options.push({
   deductibleOption: ded,
   deductibleValue: deductibleValue
@@ -239,6 +273,10 @@ options.push({
     convargo: convargo,
     options: options
   });
+
+
+
+
 
   return repartition;
 }
